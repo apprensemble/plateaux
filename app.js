@@ -1,0 +1,32 @@
+const express = require('express')
+const app = express()
+app.use(express.json()) // for parsing application/json
+app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+
+
+var compteur = 0
+var message = "debut"
+
+app.post('/test_json', function (req, res, next) {
+  console.log(req.body)
+  res.json(req.body)
+})
+
+app.get('/', function (req, res) {
+  res.send('Bienvenue sur la plateforme de Gilles :)')
+})
+
+app.get('/abande', function (req, res) {
+  res.send(message)
+})
+
+app.post('/abande', function (req, res) {
+  console.log(req.body.message)
+  message = req.body.message
+  compteur++
+  res.send(message)
+});
+
+app.listen(3000, function () {
+  console.log('Example app listening on port 3000!')
+})
