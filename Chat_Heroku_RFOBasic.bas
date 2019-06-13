@@ -86,7 +86,7 @@ Envoyer:
  List.Add comm, "{\"message\":"+mess$+"}"
  HTTP.POST url$, comm, rep$
  pause 200
- if len(rep$) then popup "  message envoyÃ©...  "
+ if len(rep$) then popup "  message envoyé...  "
 RETURN
 
 Consulter:
