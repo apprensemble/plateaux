@@ -82,8 +82,8 @@ RETURN
 
 Envoyer:
  List.CLear comm
- List.Add comm, "Message"
- List.Add comm, "{\"message\":"+mess$+"}"
+ List.Add comm, "message"
+ List.Add comm, mess$    % "{\"message\":"+mess$+"}"
  HTTP.POST url$, comm, rep$
  pause 200
  if len(rep$) then popup "  message envoyé...  "
