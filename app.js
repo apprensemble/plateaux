@@ -3,8 +3,6 @@ const app = express()
 app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
-
-var compteur = 0
 var message = "debut"
 
 app.post('/test_json', function (req, res, next) {
@@ -25,7 +23,6 @@ for (i = 1; i < 5; i++) {
 app.post('/channel'+i, function (req, res) {
   console.log(req.body.message)
   message = req.body.message
-  compteur++
   res.send(message)
 });
   
