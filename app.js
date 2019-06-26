@@ -4,7 +4,7 @@ app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
 
-  var message = ["inutile","Banana", "Orange", "Apple", "Mango"];
+  var message = ["inutile","Banana", "Orange", "Apple", "Mango"]
 
 app.post('/test_json', function (req, res, next) {
   console.log(req.body)
@@ -18,12 +18,14 @@ app.get('/', function (req, res) {
 for (i = 1; i < 5; i++) {
 
   app.get('/channel'+i, function (req, res) {
+  console.log(message[i])
   res.send(message[i])
 })
 
 app.post('/channel'+i, function (req, res) {
   console.log(req.body.message)
   message[i] = req.body.message
+  console.log(message[i])
   res.send(message[i])
 });
   
