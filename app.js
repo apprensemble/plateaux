@@ -30,6 +30,44 @@ app.post('/channel1', function (req, res) {
   res.send(message1)
 });
 
+app.get('/channel2', function (req, res) {
+  console.log(message2)
+  res.send(message2)
+})
+
+app.post('/channel2', function (req, res) {
+  console.log(req.body.message)
+  message2 = req.body.message
+  console.log(message2)
+  res.send(message2)
+});
+
+
+app.get('/channel3', function (req, res) {
+  console.log(message3)
+  res.send(message3)
+})
+
+app.post('/channel3', function (req, res) {
+  console.log(req.body.message)
+  message3 = req.body.message
+  console.log(message3)
+  res.send(message3)
+});
+
+
+app.get('/channel4', function (req, res) {
+  console.log(message4)
+  res.send(message4)
+})
+
+app.post('/channel4', function (req, res) {
+  console.log(req.body.message)
+  message4 = req.body.message
+  console.log(message4)
+  res.send(message4)
+});
+
 
 app.listen(process.env.PORT || 8080, function () {
   console.log('Example app listening on port 8080!')
