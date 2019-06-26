@@ -16,16 +16,21 @@ app.get('/', function (req, res) {
   res.send('Bienvenue sur la plateforme de Gilles :)')
 })
 
-app.get('/abande', function (req, res) {
+for (i = 1; i < 5; i++) {
+
+  app.get('/channel'+i, function (req, res) {
   res.send(message)
 })
 
-app.post('/abande', function (req, res) {
+app.post('/channel'+i, function (req, res) {
   console.log(req.body.message)
   message = req.body.message
   compteur++
   res.send(message)
 });
+  
+}
+
 
 app.listen(process.env.PORT || 8080, function () {
   console.log('Example app listening on port 8080!')
