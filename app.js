@@ -3,9 +3,8 @@ const app = express()
 app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
-for (i = 1; i < 5; i++) {
-  var message[i] = "pret"+i;
-}
+
+  var message = ["inutile","Banana", "Orange", "Apple", "Mango"];
 
 app.post('/test_json', function (req, res, next) {
   console.log(req.body)
