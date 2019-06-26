@@ -3,7 +3,7 @@ const app = express()
 app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
-var message = "prêt"
+var message;
 
 app.post('/test_json', function (req, res, next) {
   console.log(req.body)
@@ -17,13 +17,13 @@ app.get('/', function (req, res) {
 for (i = 1; i < 5; i++) {
 
   app.get('/channel'+i, function (req, res) {
-  res.send(message)
+  res.send(message[i])
 })
 
 app.post('/channel'+i, function (req, res) {
   console.log(req.body.message)
-  message = req.body.message
-  res.send(message)
+  message[i] = req.body.message
+  res.send(message[i])
 });
   
 }
