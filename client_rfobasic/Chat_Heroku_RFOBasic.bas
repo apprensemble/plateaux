@@ -24,41 +24,44 @@ FN.END
 GR.OPEN 255,90,140,80,0,0    %  landscape
 gr.screen w,h : scx =1280 : scy =800 : sx =w/scx : sy =h/scy : gr.scale sx, sy
 
-! USING$(,"%02.0f",0)  % pour afficher 01 pour 1.
+! USING$(,"%02.0f",0)    % pour afficher 01 pour 1.
 
-url$ ="https://plateaux.herokuapp.com/abande/"
+DIM rep[4]
 
-GOSUB Wifi
+url$ ="https://plateaux.herokuapp.com/"
+
 List.Create S,comm
 
 DO
 
-  new =0
   GOSUB InitScreen
+  new =0
 
   Do
+
+    if !link : GOSUB CheckConnection
+    else     : GOSUB Consulter
+    endif
 
     do
       gr.touch touched, x, y : pause 10
       if !background() then gr.render
     until touched | new | quit
     if new | quit then D_U.break
-    x/=sx : y/=sy
 
     while touched
       gr.touch touched, tx, ty
     repeat
-    tx/=sx : ty/=sy
+    tx/=sx : ty/=sy : ch =0
 
-    if tx>400 & tx<400+480 & ty>200 & ty<260        % envoi
-      Input "    Saisir le texte     ", mess$, "", IsCanceled
-      if !IsCanceled
-        GOSUB Envoyer
+    if tx>1080 & ty>100 & ty<460       % envoi sur le Channel correspondant
+      ch =int((ty-100)/ec)+(ty>100)
+      if !link
+        GOSUB CheckConnection
+      elseif ch>0 & ch<5
+        Input "    Saisir le texte pour le Channel "+int$(ch)+"    ", mess$, "", IsCanceled
+        if !IsCanceled & mess$<>"" then GOSUB Envoyer
       endif
-
-    elseif tx>400 & tx<400+480 & ty>400 & ty<460    % consulte
-      GOSUB Consulter
-      gr.modify mess, "text", "reÃ§u : "+res$
 
     endif
 
@@ -71,41 +74,70 @@ OnBackKey:
   new  =(ok=2) : quit =(ok=1)
 Back.Resume
 
-WiFi:
-go =0 : link =0
-do
-  SOCKET.MyIP myip$
-  if myip$ = "" then Dialog.Message "WiFi not active","please activate...",go,"Ok","Cancel"
-until len(myip$) | go=2
-if len(myip$) then link =1
+CheckConnection:    %  cannot do this within a function as returns improper results
+Link =0
+SYSTEM.OPEN
+SYSTEM.WRITE "ping -w1 8.8.8.8"
+!SYSTEM.WRITE "ping www.tapatalk.com"
+FOR z1=1 TO 6
+ PAUSE 250 : GR.MODIFY mess, "text", "Connecting to server :"+INT$(z1)+"/6" : gr.render
+NEXT z1
+SYSTEM.READ.READY z1
+DO
+ SYSTEM.READ.LINE a$
+ SYSTEM.READ.READY z2
+UNTIL z2=0
+IF z1>0 THEN z2 =1 ELSE z2 =0      % z2=1 means connected
+SYSTEM.CLOSE
+if !z2
+  Dialog.Message "   Pas de connection Internet !   ", "please activate...", go, "Ok", "Cancel"
+else
+  GrabUrl res$, url$ : pause 200 : gr.modify mess, "text", res$ : link =1
+endif
 RETURN
 
 Envoyer:
  List.CLear comm
  List.Add comm, "message"
- List.Add comm, mess$    % "{\"message\":"+mess$+"}"
- HTTP.POST url$, comm, rep$
- pause 200
- if len(rep$) then popup "  message envoyé...  "
+ List.Add comm, mess$
+ HTTP.POST url$+"Channel"+int$(ch), comm, rep$
+ t1 =clock() : do : until rep$=mess$ | clock()-t1>6000    % message acquité ou 6 secondes dépassées.
+ if rep$<>mess$
+   POPUP " Soucis de connection internet ? ",,-650,1
+ else
+   POPUP " message envoyé... ",,-650
+ endif
 RETURN
 
-Consulter:
- GrabUrl res$, url$
- pause 200
+Consulter:       % lit et affiche le contenu des 4 Channels.
+ for c=1 to 4
+   rep$ ="" : t1 =clock()
+   do
+     GrabUrl rep$, url$+"Channel"+int$(c) : pause 100
+     gr.modify rep[c], "text", rep$ : gr.render
+   until rep$<>"" | clock()-t1>6000   % message lu ou 6 secondes dÃ©passÃ©es.
+   if rep$="" | new | quit
+     gr.modify mess, "text", " Soucis de connection internet ? "
+     F_n.Break
+   endif
+ next
 RETURN
 
 InitScreen:
 GR.CLS
-gr.set.stroke 4
-clr("255 255 127 39 0")
-gr_Rect(400,200, 50, 480,60, 0)
-gr_Rect(400,400, 50, 480,60, 0)
-gr.set.stroke 2
-clr("255 0 255 74 1")
-gr.text.align 2 : gr.text.size 40
-gr.text.draw nul, scx/2, 242, "Envoyer un message"
-gr.text.draw nul, scx/2, 442, "Lire le message"
-clr("255 255 250 153 1")
-gr.text.draw mess, scx/2, 600, "..."
+ec =90 : gr.text.size 34 : gr.text.align 1
+for t=1 to 4
+  clr("255 255 252 204 1")
+  gr_Rect(160,100+(t-1)*ec, 50, scx-400,70, 1)
+  gr_Rect(1080,100+(t-1)*ec, 50, 180,70, 1)
+  clr("255 255 127 39 0") : gr.text.draw nul, 15, 100+t*ec-40, "Channel"+int$(t)
+  clr("255 50 50 50 1") : gr.text.draw nul, 1120, 100+t*ec-40, "Ecrire"
+  clr("255 0 0 255 1") : gr.text.draw rep[t], 180, 100+t*ec-40, "..."
+next
+clr("255 255 250 153 1") : gr.text.align 2
+gr.text.draw mess, scx/2, 50, "..."
+
+gr.text.draw nul, scx/2, 100+6*ec-40, "bientôt ici le contenu du 'Chat'..."
 Return
+
 
